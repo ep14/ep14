@@ -12,6 +12,7 @@ import android.widget.EditText;
 /**
  * Created by huang and slavnic on 29/10/14.
  */
+
 public class MainActivity  extends Activity implements View.OnClickListener {
     private Button _info= null,_ok=null,_delete=null;
     private EditText _key,_data,_deleteKey;
