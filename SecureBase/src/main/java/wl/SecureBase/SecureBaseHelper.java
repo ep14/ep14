@@ -12,9 +12,10 @@ public class SecureBaseHelper extends SQLiteOpenHelper {
     private static final String COL_ID = "id";
     private static final String COL_KEY = "key";
     private static final String COL_DATA = "data";
+    private static final String COL_IV = "IV";
     private static final String CREATE_BDD = "CREATE TABLE IF NOT EXISTS " + TABLE + " ( "
             + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COL_KEY + " TEXT NOT NULL, "
-            + COL_DATA + " TEXT NOT NULL);";
+            + COL_DATA + " TEXT NOT NULL, "+ COL_IV + " TEXT NOT NULL);";
 
     public SecureBaseHelper(Context context, String name,
                             SQLiteDatabase.CursorFactory factory, int version) {

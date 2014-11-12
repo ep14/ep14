@@ -9,14 +9,12 @@ import java.math.BigInteger;
  * Created by huang and slavnic on 29/10/14.
  */
 public class CipherAlgo {
-    private static String _IV;
     private static String _algo;
     private static String _keyValue;
 
     public CipherAlgo(){
         _algo = "AES/CBC/PKCS5Padding";
         _keyValue = "ENSICAENENSICAEN";
-        _IV ="1234567890000000";
     }
 
     /**
@@ -35,28 +33,41 @@ public class CipherAlgo {
     public CipherAlgo(String algo){
         _algo=algo;
         _keyValue = "ENSICAENMONETIQUE";
-        _IV ="informatique";
     }
 
 
-    public String encrypt(String plainText) throws Exception {
+    public byte[] encrypt(String plainText,byte[] IV) throws Exception {
         Cipher cipher = Cipher.getInstance(_algo);
         SecretKeySpec key = new SecretKeySpec(_keyValue.getBytes("UTF-8"), "AES");
-        cipher.init(Cipher.ENCRYPT_MODE, key,new IvParameterSpec(_IV.getBytes("UTF-8")));
+        cipher.init(Cipher.ENCRYPT_MODE, key,new IvParameterSpec(IV));
         byte[] encVal=cipher.doFinal(plainText.getBytes("UTF-8"));
-        String s ="";
-        for(int i=0;i<encVal.length;i++){
-            s+=String.format("%8s", Integer.toBinaryString(encVal[i] & 0xFF)).replace(' ', '0');
-        }
-        return s;
+        return encVal;
     }
 
-    public String decrypt(String cipherText) throws Exception{
+    public String decrypt(byte[] cipherText,byte[] IV) throws Exception{
         Cipher cipher = Cipher.getInstance(_algo);
         SecretKeySpec key = new SecretKeySpec(_keyValue.getBytes("UTF-8"), "AES");
-        cipher.init(Cipher.DECRYPT_MODE, key,new IvParameterSpec(_IV.getBytes("UTF-8")));
-        byte[] val = new BigInteger(cipherText,2).toByteArray();
-        return new String(cipher.doFinal(val),"UTF-8");
+        cipher.init(Cipher.DECRYPT_MODE, key,new IvParameterSpec(IV));
+        return new String(cipher.doFinal(cipherText),"UTF-8");
     }
 
+
+    public String toBinary( byte[] bytes ){
+        StringBuilder sb = new StringBuilder(bytes.length * Byte.SIZE);
+        for( int i = 0; i < Byte.SIZE * bytes.length; i++ )
+            sb.append((bytes[i / Byte.SIZE] << i % Byte.SIZE & 0x80) == 0 ? '0' : '1');
+        return sb.toString();
+    }
+
+    public byte[] fromBinary( String s ){
+        int sLen = s.length();
+        byte[] toReturn = new byte[(sLen + Byte.SIZE - 1) / Byte.SIZE];
+        char c;
+        for( int i = 0; i < sLen; i++ )
+            if( (c = s.charAt(i)) == '1' )
+                toReturn[i / Byte.SIZE] = (byte) (toReturn[i / Byte.SIZE] | (0x80 >>> (i % Byte.SIZE)));
+            else if ( c != '0' )
+                throw new IllegalArgumentException();
+        return toReturn;
+    }
 }
