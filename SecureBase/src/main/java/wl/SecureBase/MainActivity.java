@@ -17,7 +17,7 @@ import java.security.SecureRandom;
  */
 
 public class MainActivity  extends Activity implements View.OnClickListener {
-    private Button _info= null,_ok=null,_delete=null;
+    private Button _info= null,_ok=null,_delete=null,_clearBase=null;
     private EditText _key,_data,_deleteKey;
     private DataBase _db;
     private CipherAlgo _cipher;
@@ -34,6 +34,9 @@ public class MainActivity  extends Activity implements View.OnClickListener {
         _ok.setOnClickListener(this);
         _delete=(Button)findViewById(R.id.buttonDelete);
         _delete.setOnClickListener(this);
+        _clearBase=(Button)findViewById(R.id.buttonClearBase);
+        _clearBase.setOnClickListener(this);
+
         _key =(EditText)findViewById(R.id.textKey);
         _data =(EditText)findViewById(R.id.textData);
         _deleteKey =(EditText)findViewById(R.id.textDelete);
@@ -63,6 +66,10 @@ public class MainActivity  extends Activity implements View.OnClickListener {
                 startActivity(intent);
                 break;
 
+            case R.id.buttonClearBase:
+                _db.clearBase();
+                break;
+
             case R.id.buttonDelete:
                 _db.deleteDataByKey(_deleteKey.getText().toString());
                 _deleteKey.setText("");
@@ -70,6 +77,19 @@ public class MainActivity  extends Activity implements View.OnClickListener {
 
         }
     }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        _db.close();
+    }
+
+    @Override
+    public void onRestart(){
+        super.onRestart();
+        _db.open();
+    }
+
     private void add() throws Exception{
         _prng.nextBytes(_IV);
         String plainText = _key.getText().toString();
