@@ -1,5 +1,6 @@
 package wl.SecureBase;
 
+import android.content.Context;
 import wl.SecureModule.CipherAlgo;
 import android.app.Activity;
 import android.content.Intent;
@@ -8,6 +9,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
@@ -23,6 +27,13 @@ public class MainActivity  extends Activity implements View.OnClickListener {
     private CipherAlgo _cipher;
     private SecureRandom _prng;
     private byte[] _IV;
+
+    // Var for file
+    private File _file = null;
+    private File _dir  = null;
+    private FileOutputStream _fout = null;
+    private String testkey = "ENSICAENENSICAEN";
+    private FileInputStream _fin = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +60,35 @@ public class MainActivity  extends Activity implements View.OnClickListener {
             e.printStackTrace();
         }
         _IV = new byte[16];
+
+        //File Creation
+        _dir = getApplicationContext().getDir("Project", Context.MODE_PRIVATE);
+        _file = new File(_dir,"file1");
+
+        //write
+        if(_file != null){
+            try{
+                _fout = openFileOutput("file1",Context.MODE_PRIVATE);
+                _fout.write(testkey.getBytes());
+                _fout.close();
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+        //read
+        if(_file != null){
+            try{
+                _fin = openFileInput("file1");
+                int c;
+                String tmp="";
+                while((c = _fin.read()) != -1){
+                    tmp = tmp + Character.toString((char)c);
+
+                }
+            }catch(Exception e){
+
+            }
+        }
     }
     @Override
     public void onClick(View v){
