@@ -8,10 +8,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import wl.SecureModule.Shamir;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
@@ -130,6 +133,10 @@ public class MainActivity  extends Activity implements View.OnClickListener {
         _db.open();
     }
 
+
+
+
+    //////////////////TEST ZONE////////////////////////
     private void add() throws Exception{
         _prng.nextBytes(_IV);
         String plainText = _key.getText().toString();
@@ -161,6 +168,41 @@ public class MainActivity  extends Activity implements View.OnClickListener {
 
     }
 
+    public void testShamir(){
+        int Secret = 123456789;
 
+        Shamir shamir = new Shamir();
+        shamir.split(Secret);
+        int sommecoeff = shamir.combine(shamir.get_coeff());
+
+        int a = 123;
+        byte[] aBytes = intToByteArray(a);
+        int a2 = byteArrayToInt(aBytes);
+
+        System.out.println(a);
+        System.out.println(aBytes);
+        System.out.println(a2);
+        byte[] a3 = intToByteArray(a2);
+        System.out.println(a3);
+
+        System.out.println("Secret ="+Secret+" et Shamir = "+sommecoeff);
+
+
+
+    }
+
+    //TODO Convert arraybyte to int
+    public static int byteArrayToInt(byte[] b) {
+        final ByteBuffer bb = ByteBuffer.wrap(b);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        return bb.getInt();
+    }
+
+    public static byte[] intToByteArray(int i) {
+        final ByteBuffer bb = ByteBuffer.allocate(Integer.SIZE / Byte.SIZE);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        bb.putInt(i);
+        return bb.array();
+    }
 
 }
