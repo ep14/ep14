@@ -1,5 +1,10 @@
 package wl.SecureModule;
 
+import wl.SecureBase.Data;
+import wl.SecureBase.DataBase;
+import wl.SecureBase.DisplayInfo;
+
+import java.math.BigInteger;
 import java.util.Random;
 
 /**
@@ -10,40 +15,72 @@ import java.util.Random;
 // Simplified version of Shamir's secret sharing
 public class Shamir {
     private int t;
-    private int m;
-    private int[] _coeff;
+    private BigInteger m; // the field Zm
+    private BigInteger[] _coeff;
     private Random random = new Random();
-    private int r;
+    private BigInteger r;
+    private BigInteger _Masterkey;
+
 
     public Shamir(){
         t = 3;
-        m = 200000000;// the Secret have to be in Z/mZ
-        _coeff = new int[t];
+        _Masterkey = Data.key1.xor(DataBase.key2.xor(DisplayInfo.key3));
+        m = _Masterkey.add(BigInteger.ONE);
+        _coeff = new BigInteger[t];
+
     }
 
-    public void split(int Secret){
+    public Shamir(BigInteger secret){
+        t = 3;
+        m = secret.add(BigInteger.ONE);
+        _coeff = new BigInteger[t];
+    }
+
+    public void split(){
+
+        BigInteger somme = BigInteger.ZERO;
+
+        r = new BigInteger(127,random);
+        Data.secret1 = r.mod(m);
+        r = new BigInteger(127,random);
+        DataBase.secret2 = r.mod(m);
+
+        somme = somme.add(Data.secret1).mod(m);
+        somme = somme.add(DataBase.secret2).mod(m);
+
+        DisplayInfo.secret3 = _Masterkey.subtract(somme).mod(m);
+
+    }
+
+    public void split(BigInteger Secret){
+
         int i;
-        int somme = 0;
+        BigInteger somme = BigInteger.ZERO;
         for(i = 0;i<t-1;i++){
-            while(r !=0 ){
-                r = random.nextInt();
-            }
 
-            _coeff[i] = r % m;
-            somme = (somme + _coeff[i]) % m ;
+            r = new BigInteger(127,random); // r is in Zm
+
+            _coeff[i] = r.mod(m);
+
+
+
+            somme = somme.add(_coeff[i]).mod(m);
+
         }
-        _coeff[t-1] = (Secret - somme) % m ;
+        _coeff[t-1] = Secret.subtract(somme).mod(m) ;
+
     }
 
-    public int combine(int[] coeff){
-        int somme = 0;
+    public BigInteger combine(BigInteger[] coeff){
+        BigInteger somme = BigInteger.ZERO;
+
         int i;
         for(i = 0;i<t;i++){
-            somme = somme + coeff[i] % m ;
+            somme = somme.add(coeff[i]).mod(m) ;
         }
         return somme;
     }
-    public int[] get_coeff(){
+    public BigInteger[] get_coeff(){
         return _coeff;
     }
 }

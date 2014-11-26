@@ -13,10 +13,12 @@ import wl.SecureModule.Shamir;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Random;
 
 
 /**
@@ -56,6 +58,10 @@ public class MainActivity  extends Activity implements View.OnClickListener {
         _deleteKey =(EditText)findViewById(R.id.textDelete);
         _db = new DataBase(this);
         _db.open();
+
+        Shamir shamir = new Shamir();
+        shamir.split();//creation of 3 secret
+
         _cipher=new CipherAlgo();
         try {
             _prng = SecureRandom.getInstance("SHA1PRNG");
@@ -64,34 +70,7 @@ public class MainActivity  extends Activity implements View.OnClickListener {
         }
         _IV = new byte[16];
 
-        //File Creation
-        _dir = getApplicationContext().getDir("Project", Context.MODE_PRIVATE);
-        _file = new File(_dir,"file1");
 
-        //write
-        if(_file != null){
-            try{
-                _fout = openFileOutput("file1",Context.MODE_PRIVATE);
-                _fout.write(testkey.getBytes());
-                _fout.close();
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-        }
-        //read
-        if(_file != null){
-            try{
-                _fin = openFileInput("file1");
-                int c;
-                String tmp="";
-                while((c = _fin.read()) != -1){
-                    tmp = tmp + Character.toString((char)c);
-
-                }
-            }catch(Exception e){
-
-            }
-        }
     }
     @Override
     public void onClick(View v){
@@ -169,29 +148,20 @@ public class MainActivity  extends Activity implements View.OnClickListener {
     }
 
     public void testShamir(){
-        int Secret = 123456789;
+        Random rnd = new Random();
+        BigInteger SecretEnsi = new BigInteger(testkey.getBytes());// Ascii
 
-        Shamir shamir = new Shamir();
-        shamir.split(Secret);
-        int sommecoeff = shamir.combine(shamir.get_coeff());
-
-        int a = 123;
-        byte[] aBytes = intToByteArray(a);
-        int a2 = byteArrayToInt(aBytes);
-
-        System.out.println(a);
-        System.out.println(aBytes);
-        System.out.println(a2);
-        byte[] a3 = intToByteArray(a2);
-        System.out.println(a3);
-
-        System.out.println("Secret ="+Secret+" et Shamir = "+sommecoeff);
+        BigInteger Secret = new BigInteger(128,rnd);
 
 
+        Shamir shamir = new Shamir(SecretEnsi);
+        shamir.split(SecretEnsi);
+        BigInteger sommecoeff = shamir.combine(shamir.get_coeff());
+
+        System.out.println("Secret ="+SecretEnsi+" et Shamir = "+sommecoeff);
 
     }
 
-    //TODO Convert arraybyte to int
     public static int byteArrayToInt(byte[] b) {
         final ByteBuffer bb = ByteBuffer.wrap(b);
         bb.order(ByteOrder.LITTLE_ENDIAN);

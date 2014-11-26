@@ -6,12 +6,17 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 
 /**
  * Created by huang and slavnic on 29/10/14.
  */
 public class DataBase {
+    private static String string2 = "DATABASEDATABASE";
+    public static BigInteger key2 = new BigInteger(string2.getBytes());
+    public static BigInteger secret2;
+
     private static final int VERSION_BDD = 1;
     private static final String NOM_BDD = "SecureBase.db";
 
