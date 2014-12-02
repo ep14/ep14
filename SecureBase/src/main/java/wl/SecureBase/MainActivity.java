@@ -1,5 +1,6 @@
 package wl.SecureBase;
 
+import android.content.Context;
 import wl.SecureModule.CipherAlgo;
 import android.app.Activity;
 import android.content.Intent;
@@ -7,9 +8,17 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import wl.SecureModule.Shamir;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Random;
 
 
 /**
@@ -17,12 +26,19 @@ import java.security.SecureRandom;
  */
 
 public class MainActivity  extends Activity implements View.OnClickListener {
-    private Button _info= null,_ok=null,_delete=null;
+    private Button _info= null,_ok=null,_delete=null,_clearBase=null;
     private EditText _key,_data,_deleteKey;
     private DataBase _db;
     private CipherAlgo _cipher;
     private SecureRandom _prng;
     private byte[] _IV;
+
+    // Var for file
+    private File _file = null;
+    private File _dir  = null;
+    private FileOutputStream _fout = null;
+    private String testkey = "ENSICAENENSICAEN";
+    private FileInputStream _fin = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +50,18 @@ public class MainActivity  extends Activity implements View.OnClickListener {
         _ok.setOnClickListener(this);
         _delete=(Button)findViewById(R.id.buttonDelete);
         _delete.setOnClickListener(this);
+        _clearBase=(Button)findViewById(R.id.buttonClearBase);
+        _clearBase.setOnClickListener(this);
+
         _key =(EditText)findViewById(R.id.textKey);
         _data =(EditText)findViewById(R.id.textData);
         _deleteKey =(EditText)findViewById(R.id.textDelete);
         _db = new DataBase(this);
         _db.open();
+
+        Shamir shamir = new Shamir();
+        shamir.split();//creation of 3 secret
+
         _cipher=new CipherAlgo();
         try {
             _prng = SecureRandom.getInstance("SHA1PRNG");
@@ -46,6 +69,8 @@ public class MainActivity  extends Activity implements View.OnClickListener {
             e.printStackTrace();
         }
         _IV = new byte[16];
+
+
     }
     @Override
     public void onClick(View v){
@@ -63,6 +88,10 @@ public class MainActivity  extends Activity implements View.OnClickListener {
                 startActivity(intent);
                 break;
 
+            case R.id.buttonClearBase:
+                _db.clearBase();
+                break;
+
             case R.id.buttonDelete:
                 _db.deleteDataByKey(_deleteKey.getText().toString());
                 _deleteKey.setText("");
@@ -70,6 +99,23 @@ public class MainActivity  extends Activity implements View.OnClickListener {
 
         }
     }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        _db.close();
+    }
+
+    @Override
+    public void onRestart(){
+        super.onRestart();
+        _db.open();
+    }
+
+
+
+
+    //////////////////TEST ZONE////////////////////////
     private void add() throws Exception{
         _prng.nextBytes(_IV);
         String plainText = _key.getText().toString();
@@ -101,6 +147,32 @@ public class MainActivity  extends Activity implements View.OnClickListener {
 
     }
 
+    public void testShamir(){
+        Random rnd = new Random();
+        BigInteger SecretEnsi = new BigInteger(testkey.getBytes());// Ascii
 
+        BigInteger Secret = new BigInteger(128,rnd);
+
+
+        Shamir shamir = new Shamir(SecretEnsi);
+        shamir.split(SecretEnsi);
+        BigInteger sommecoeff = shamir.combine(shamir.get_coeff());
+
+        System.out.println("Secret ="+SecretEnsi+" et Shamir = "+sommecoeff);
+
+    }
+
+    public static int byteArrayToInt(byte[] b) {
+        final ByteBuffer bb = ByteBuffer.wrap(b);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        return bb.getInt();
+    }
+
+    public static byte[] intToByteArray(int i) {
+        final ByteBuffer bb = ByteBuffer.allocate(Integer.SIZE / Byte.SIZE);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        bb.putInt(i);
+        return bb.array();
+    }
 
 }

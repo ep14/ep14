@@ -6,12 +6,17 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 
 /**
  * Created by huang and slavnic on 29/10/14.
  */
 public class DataBase {
+    private static String string2 = "DATABASEDATABASE";
+    public static BigInteger key2 = new BigInteger(string2.getBytes());
+    public static BigInteger secret2;
+
     private static final int VERSION_BDD = 1;
     private static final String NOM_BDD = "SecureBase.db";
 
@@ -61,22 +66,16 @@ public class DataBase {
         //Adding a value associate to a key (name of the column where the value is put)
         values.put(COL_KEY, d.getKey());
         values.put(COL_DATA, d.getData());
-        byte[] b = d.getIV();
-        String IV;
-        try {
-            IV = new String(b, "ISO-8859-1");
-            values.put(COL_IV, IV);// byte[] in a String not sure if it work
-            //insert the object in the db with ContentValues
-            Cursor cursor = _db.query(TABLE, new String[] {COL_ID, COL_KEY, COL_DATA,COL_IV}, COL_KEY + "=\"" + d.getKey() +"\" AND "+ COL_DATA +"=\""+d.getData()+"\" AND "+COL_IV+"=\""+IV+"\"", null, null, null, null);
-            if (cursor.getCount() == 0) {
-                return _db.insert(TABLE, null, values); //return id
-            } else {
-                return -1;
-            }
-        }catch(UnsupportedEncodingException e) {
-            e.printStackTrace();
+
+        values.put(COL_IV,d.getIV());// byte[] in a String not sure if it work
+        //insert the object in the db with ContentValues
+        Cursor cursor = _db.query(TABLE, new String[] {COL_ID, COL_KEY, COL_DATA,COL_IV}, COL_KEY + "=\"" + d.getKey() +"\" AND "+ COL_DATA +"=\""+d.getData()+"\" AND "+COL_IV+"=\""+d.getIV()+"\"", null, null, null, null);
+        if (cursor.getCount() == 0) {
+            return _db.insert(TABLE, null, values); //return id
+        } else {
+            return -1;
         }
-        return -1;
+
     }
 
     public long deleteDataByKey(String key){
@@ -100,19 +99,14 @@ public class DataBase {
             return null;
         //else we move on the first element
         c.moveToFirst();
-        //Creation of a client
         Data d = null;
-        try{
-            d = new Data(c.getString(NUM_COL_KEY),c.getString(NUM_COL_DATA),c.getString(NUM_COL_IV).getBytes("ISO-8859-1"));
+        d = new Data(c.getString(NUM_COL_KEY),c.getString(NUM_COL_DATA),c.getBlob(NUM_COL_IV));//Storage as Byte array(Blob)
 
-        }catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+
 
         //Closing the cursor
         c.close();
 
-        //returning the book
         return d;
     }
 
@@ -134,6 +128,10 @@ public class DataBase {
         return list;
     }
 
+    public void clearBase(){
+        _db.delete(TABLE,null,null);
+
+    }
 
 
 
