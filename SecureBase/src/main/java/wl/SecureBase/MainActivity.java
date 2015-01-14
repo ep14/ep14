@@ -14,6 +14,7 @@ import wl.SecureModule.Shamir;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -58,6 +59,13 @@ public class MainActivity  extends Activity implements View.OnClickListener {
     private String SimOperatorName;
     private String SubscriberId;
     private String VoiceMailAlphaTag;
+
+
+    //Stack Trace
+
+    private StackTraceElement[] _st;
+    public static FileOutputStream fos;
+    public static String FILENAME = "stack";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,6 +152,16 @@ public class MainActivity  extends Activity implements View.OnClickListener {
 
                 try {
                     testEncryption();
+                    _st=Thread.currentThread().getStackTrace();
+                    _key.setText(_st[2].getClassName());
+                    try {
+                        fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
+                    } catch (FileNotFoundException e1) {
+                        e1.printStackTrace();
+                    }
+                    String s= _st[2].getMethodName()+"\n";
+                    fos.write(s.getBytes());
+                    fos.write(_st[2].getClassName().getBytes());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -154,13 +172,16 @@ public class MainActivity  extends Activity implements View.OnClickListener {
                 break;
 
             case R.id.buttonClearBase:
-                _db.clearBase();
+                //_db.clearBase();
+                Intent intent1 = new Intent(MainActivity.this, DisplayStack.class);
+                startActivity(intent1);
                 break;
 
-            case R.id.buttonDelete:
+            /*case R.id.buttonDelete:
                 _db.deleteDataByKey(_deleteKey.getText().toString());
                 _deleteKey.setText("");
                 break;
+                */
 
         }
     }
@@ -212,32 +233,19 @@ public class MainActivity  extends Activity implements View.OnClickListener {
 
     }
 
-    public void testShamir(){
+    public void testShamir() {
         Random rnd = new Random();
         BigInteger SecretEnsi = new BigInteger(testkey.getBytes());// Ascii
 
-        BigInteger Secret = new BigInteger(128,rnd);
+        BigInteger Secret = new BigInteger(128, rnd);
 
 
         Shamir shamir = new Shamir(SecretEnsi);
         shamir.split(SecretEnsi);
         BigInteger sommecoeff = shamir.combine(shamir.get_coeff());
 
-        System.out.println("Secret ="+SecretEnsi+" et Shamir = "+sommecoeff);
+        System.out.println("Secret =" + SecretEnsi + " et Shamir = " + sommecoeff);
 
-    }
-
-    public static int byteArrayToInt(byte[] b) {
-        final ByteBuffer bb = ByteBuffer.wrap(b);
-        bb.order(ByteOrder.LITTLE_ENDIAN);
-        return bb.getInt();
-    }
-
-    public static byte[] intToByteArray(int i) {
-        final ByteBuffer bb = ByteBuffer.allocate(Integer.SIZE / Byte.SIZE);
-        bb.order(ByteOrder.LITTLE_ENDIAN);
-        bb.putInt(i);
-        return bb.array();
     }
 
 }
