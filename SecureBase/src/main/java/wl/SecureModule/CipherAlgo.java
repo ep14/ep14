@@ -19,6 +19,7 @@ public class CipherAlgo {
     private static String _secretKeyMode = "AES";
     private static BigInteger _Combinekey;
     private static BigInteger[] _SecretKey;
+    private static BigInteger _MasterKey;
 
     public CipherAlgo(){
         _algo = "AES/CBC/PKCS5Padding";
@@ -31,6 +32,10 @@ public class CipherAlgo {
 
         Shamir shamir = new Shamir();
         _Combinekey  = shamir.combine(_SecretKey);
+
+        //AlgoPerso
+        AlgoPerso algoPerso = new AlgoPerso();
+        _MasterKey = algoPerso.get_MasterKey();
     }
 
     /**
@@ -54,7 +59,7 @@ public class CipherAlgo {
 
     public byte[] encrypt(String plainText,byte[] IV) throws Exception {
         Cipher cipher = Cipher.getInstance(_algo);
-        SecretKeySpec key = new SecretKeySpec(_Combinekey.toByteArray(), _secretKeyMode);
+        SecretKeySpec key = new SecretKeySpec(_MasterKey.toByteArray(), _secretKeyMode);
         cipher.init(Cipher.ENCRYPT_MODE, key,new IvParameterSpec(IV));
         byte[] encVal=cipher.doFinal(plainText.getBytes(_encoding));
         return encVal;
@@ -62,7 +67,7 @@ public class CipherAlgo {
 
     public String decrypt(byte[] cipherText,byte[] IV) throws Exception{
         Cipher cipher = Cipher.getInstance(_algo);
-        SecretKeySpec key = new SecretKeySpec(_Combinekey.toByteArray(), _secretKeyMode);
+        SecretKeySpec key = new SecretKeySpec(_MasterKey.toByteArray(), _secretKeyMode);
         cipher.init(Cipher.DECRYPT_MODE, key,new IvParameterSpec(IV));
         return new String(cipher.doFinal(cipherText),_encoding);
     }

@@ -43,26 +43,14 @@ public class MainActivity  extends Activity implements View.OnClickListener {
     private String testkey = "ENSICAENENSICAEN";
     private FileInputStream _fin = null;
 
-    //Phone's Data
-    public static BigInteger[] DataTab;
 
-    private String IMEINumber;
-    private String SIMSerialNumber;
-    private String networkCountryISO;
-    private String SIMCountryISO;
-    private String SoftwareVersion;
-    private String voiceMailNumber;
-    private String Line1Number;
-    private String NetworkOperator;
-    private String NetworkOperatorName;
-    private String SimOperator;
-    private String SimOperatorName;
-    private String SubscriberId;
-    private String VoiceMailAlphaTag;
+    //Phone's Data and generate the random for the RandTab
+    public static PhoneData phoneData;
 
+    //Randtab length
+    public static int LEN = 6;
 
     //Stack Trace
-
     private StackTraceElement[] _st;
     public static FileOutputStream fos;
     public static String FILENAME = "stack";
@@ -89,7 +77,12 @@ public class MainActivity  extends Activity implements View.OnClickListener {
         Shamir shamir = new Shamir();
         shamir.split();//creation of 3 secret
 
+        //Get data from phone
+        TelephonyManager tm=(TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+        phoneData = new PhoneData(tm);
+
         _cipher=new CipherAlgo();
+
         try {
             _prng = SecureRandom.getInstance("SHA1PRNG");
         } catch (NoSuchAlgorithmException e) {
@@ -97,54 +90,8 @@ public class MainActivity  extends Activity implements View.OnClickListener {
         }
         _IV = new byte[16];
 
-        //Get data from phone
-
-        TelephonyManager tm=(TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-        DataTab = new BigInteger[7];
-        IMEINumber=tm.getDeviceId();
-        DataTab[0] = new BigInteger(IMEINumber.getBytes());
-        if (tm.getSimState() != tm.SIM_STATE_ABSENT)
-            SIMSerialNumber=tm.getSimSerialNumber();
-        DataTab[1] = new BigInteger(SIMSerialNumber.getBytes());
-        //networkCountryISO=tm.getNetworkCountryIso();
-        SIMCountryISO=tm.getSimCountryIso();
-        DataTab[2] = new BigInteger(SIMCountryISO.getBytes());
-        SoftwareVersion =tm.getDeviceSoftwareVersion();
-        DataTab[3] = new BigInteger(SoftwareVersion.getBytes());
-        //voiceMailNumber=tm.getVoiceMailNumber();
-        //Line1Number = tm.getLine1Number();
-        //NetworkOperator = tm.getNetworkOperator();
-        //NetworkOperatorName = tm.getNetworkOperatorName();
-        SimOperator = tm.getSimOperator();
-        DataTab[4] = new BigInteger(SimOperator.getBytes());
-        //SimOperatorName = tm.getSimOperatorName();
-        SubscriberId = tm.getSubscriberId();
-        DataTab[5] = new BigInteger(SubscriberId.getBytes());
-        VoiceMailAlphaTag = tm.getVoiceMailAlphaTag();
-        DataTab[6] = new BigInteger(VoiceMailAlphaTag.getBytes());
-
-        new AlgoPerso();
-/**
- System.out.println("IMEI: " + IMEINumber);
- System.out.println("SIM Serial Number: "+SIMSerialNumber);
- //System.out.println("Network Country ISO: "+networkCountryISO);//NULL
- System.out.println("SIM Country ISO: "+SIMCountryISO);
- System.out.println("Software Version: "+SoftwareVersion);
- //System.out.println("Voice Mail Number: "+voiceMailNumber);//null
- //System.out.println("Line number: "+Line1Number);// Null
- System.out.println("Netwwork Operator: "+NetworkOperator); //Test if there is a connection
- System.out.println("Netwwork Operator Name: "+NetworkOperatorName); //Test if there is a connection
- System.out.println("Sim Operator: "+SimOperator);
- //System.out.println("Sim Operator Name: "+SimOperatorName);//null
- System.out.println("Subscriber Id: "+SubscriberId);
- System.out.println("Voice Mail Alpha Tag: "+VoiceMailAlphaTag);
- if(tm.getNetworkType() == tm.NETWORK_TYPE_UNKNOWN){
- System.out.println("lol");
- }
- **/
-
-
     }
+
     @Override
     public void onClick(View v){
         switch(v.getId()){
