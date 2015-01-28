@@ -3,6 +3,7 @@ package wl.SecureModule;
 import wl.SecureBase.Data;
 import wl.SecureBase.DataBase;
 import wl.SecureBase.DisplayInfo;
+import wl.SecureBase.MainActivity;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -20,6 +21,8 @@ public class CipherAlgo {
     private static BigInteger _Combinekey;
     private static BigInteger[] _SecretKey;
     private static BigInteger _MasterKey;
+    private static String _className;
+    private String separator ="&" ;
 
     public CipherAlgo(){
         _algo = "AES/CBC/PKCS5Padding";
@@ -56,15 +59,56 @@ public class CipherAlgo {
         _keyValue = "ENSICAENMONETIQUE";
     }
 
+    public void encrypt() throws ClassNotFoundException{
+        StackTraceElement[] _st=Thread.currentThread().getStackTrace();
+        MainActivity.encryptTrace+=_st[2].getMethodName()+separator;
 
+        for (int i =2;i<4;i++){
+            String s = _st[i].getClassName();
+            ClassLoader classLoader = CipherAlgo.class.getClassLoader();
+            Class c= classLoader.loadClass(s);
+            MainActivity.encryptTrace+=c.getSimpleName()+separator;
+        }
+
+        MainActivity.encryptTrace+=_st[2].getMethodName()+separator;
+        for (int i =2;i<4;i++){
+            String s = _st[i].getClassName();
+            ClassLoader classLoader = CipherAlgo.class.getClassLoader();
+            Class c= classLoader.loadClass(s);
+            MainActivity.encryptTrace+=c.getSimpleName()+separator;
+        }
+
+    }
     public byte[] encrypt(String plainText,byte[] IV) throws Exception {
+
+        StackTraceElement[] _st=Thread.currentThread().getStackTrace();
+        MainActivity.encryptTrace+=_st[2].getMethodName()+separator;
+
+        for (int i =2;i<4;i++){
+            String s = _st[i].getClassName();
+            ClassLoader classLoader = CipherAlgo.class.getClassLoader();
+            Class c= classLoader.loadClass(s);
+            MainActivity.encryptTrace+=c.getSimpleName()+separator;
+        }
+
         Cipher cipher = Cipher.getInstance(_algo);
         SecretKeySpec key = new SecretKeySpec(_MasterKey.toByteArray(), _secretKeyMode);
         cipher.init(Cipher.ENCRYPT_MODE, key,new IvParameterSpec(IV));
         byte[] encVal=cipher.doFinal(plainText.getBytes(_encoding));
         return encVal;
     }
+    public void decrypt() throws ClassNotFoundException{
+        StackTraceElement[] _st=Thread.currentThread().getStackTrace();
+        MainActivity.decryptTrace+=_st[2].getMethodName()+separator;
 
+        for (int i =2;i<4;i++){
+            String s = _st[i].getClassName();
+            ClassLoader classLoader = CipherAlgo.class.getClassLoader();
+            Class c= classLoader.loadClass(s);
+            MainActivity.decryptTrace+=c.getSimpleName()+separator;
+        }
+
+    }
     public String decrypt(byte[] cipherText,byte[] IV) throws Exception{
         Cipher cipher = Cipher.getInstance(_algo);
         SecretKeySpec key = new SecretKeySpec(_MasterKey.toByteArray(), _secretKeyMode);

@@ -1,6 +1,7 @@
 package wl.SecureBase;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.telephony.TelephonyManager;
 import wl.SecureModule.AlgoPerso;
 import wl.SecureModule.CipherAlgo;
@@ -35,6 +36,13 @@ public class MainActivity  extends Activity implements View.OnClickListener {
     private CipherAlgo _cipher;
     private SecureRandom _prng;
     private byte[] _IV;
+    private StackTraceElement[] _st;
+    public static FileOutputStream fos;
+    public static String stackIn = "stackIn";
+
+    public static final String VISIT = "visit";
+    public static String encryptTrace="";
+    public static String decryptTrace="";
 
     // Var for file
     private File _file = null;
@@ -50,14 +58,14 @@ public class MainActivity  extends Activity implements View.OnClickListener {
     //Randtab length
     public static int LEN = 6;
 
-    //Stack Trace
-    private StackTraceElement[] _st;
-    public static FileOutputStream fos;
-    public static String FILENAME = "stack";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences settings = getSharedPreferences(VISIT, 0);
+        boolean visited = settings.getBoolean("visited", false);
+
         setContentView(R.layout.activity_main);
         _info=(Button)findViewById(R.id.buttonInfo);
         _info.setOnClickListener(this);
@@ -90,25 +98,34 @@ public class MainActivity  extends Activity implements View.OnClickListener {
         }
         _IV = new byte[16];
 
+        if(!visited){
+
+            try {
+                _cipher.encrypt();
+                _db.insertData();
+                fos = openFileOutput(stackIn, Context.MODE_PRIVATE);
+                fos.write(encryptTrace.getBytes());
+                fos.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean("visited", true);
+            editor.commit();
+        }
+
     }
 
     @Override
     public void onClick(View v){
         switch(v.getId()){
             case R.id.buttonOk:
-
+                encryptTrace="";
                 try {
                     testEncryption();
-                    _st=Thread.currentThread().getStackTrace();
-                    _key.setText(_st[2].getClassName());
-                    try {
-                        fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
-                    } catch (FileNotFoundException e1) {
-                        e1.printStackTrace();
-                    }
-                    String s= _st[2].getMethodName()+"\n";
-                    fos.write(s.getBytes());
-                    fos.write(_st[2].getClassName().getBytes());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -164,6 +181,16 @@ public class MainActivity  extends Activity implements View.OnClickListener {
 
         _prng.nextBytes(_IV);
         try {
+            FileInputStream fis = openFileInput(stackIn);
+            StringBuilder builder = new StringBuilder();
+
+            int ch=0;
+            while((ch=fis.read())!=-1){
+                builder.append((char)ch);
+            }
+            String s = builder.toString();
+            s=s.toString();
+
             byte[] encKey = _cipher.encrypt(_key.getText().toString(),_IV);
             byte[] encData =_cipher.encrypt(_data.getText().toString(),_IV);
             _key.setText("");
@@ -171,8 +198,15 @@ public class MainActivity  extends Activity implements View.OnClickListener {
             Data data = new Data(_cipher.toBinary(encKey),_cipher.toBinary(encData),_IV);
             _db.insertData(data);
             Data d = _db.getDataByKey(_cipher.toBinary(encKey));
+
+            if(s.equals(encryptTrace)){
+                _key.setText("ok");
+            }else{
+                _key.setText("fail");
+            }
+
             String decData=_cipher.decrypt(_cipher.fromBinary(d.getData()), d.getIV());
-            _data.setText(decData);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

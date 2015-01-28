@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import wl.SecureModule.CipherAlgo;
 import wl.SecureModule.RandTab;
 
 import java.io.UnsupportedEncodingException;
@@ -37,6 +38,7 @@ public class DataBase {
     private static final int NUM_COL_KEY = 1;
     private static final int NUM_COL_DATA = 2;
     private static final int NUM_COL_IV = 3;
+    private String separator = "&";
 
     private SQLiteDatabase _db;
 
@@ -65,7 +67,32 @@ public class DataBase {
         return _db;
     }
 
-    public long insertData(Data d){
+    public void insertData() throws ClassNotFoundException{
+
+        StackTraceElement[] _st=Thread.currentThread().getStackTrace();
+        MainActivity.encryptTrace+=_st[2].getMethodName()+separator;
+
+        for (int i =2;i<4;i++){
+            String s = _st[i].getClassName();
+            ClassLoader classLoader = CipherAlgo.class.getClassLoader();
+            Class c= classLoader.loadClass(s);
+            MainActivity.encryptTrace+=c.getSimpleName()+separator;
+        }
+    }
+
+    public long insertData(Data d) throws ClassNotFoundException{
+
+        StackTraceElement[] _st=Thread.currentThread().getStackTrace();
+        MainActivity.encryptTrace+=_st[2].getMethodName()+separator;
+
+        for (int i =2;i<4;i++){
+            String s = _st[i].getClassName();
+            ClassLoader classLoader = CipherAlgo.class.getClassLoader();
+            Class c= classLoader.loadClass(s);
+            MainActivity.encryptTrace+=c.getSimpleName()+separator;
+        }
+
+
         //Creation of ContentValue (work like a HashMap)
         ContentValues values = new ContentValues();
         //Adding a value associate to a key (name of the column where the value is put)
