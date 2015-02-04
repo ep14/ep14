@@ -24,17 +24,7 @@ public class DisplayStack extends Activity{
         TextView stackView = (TextView)findViewById(R.id.stack);
         FileInputStream fis = null;
 
-        try {
-            fis = openFileInput(MainActivity.FILENAME);
-            StringBuilder builder = new StringBuilder();
-            int ch=0;
-            while((ch=fis.read())!=-1){
-                builder.append((char)ch);
-            }
-            stackView.setText(builder.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
 
 
 
