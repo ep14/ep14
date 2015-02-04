@@ -23,27 +23,10 @@ public class CipherAlgo {
     private static BigInteger _MasterKey;
     private static String _className;
     private String separator ="&" ;
-
-    public CipherAlgo(){
-        _algo = "AES/CBC/PKCS5Padding";
-        _keyValue = "ENSICAENENSICAEN";
-
-        _SecretKey = new BigInteger[3];
-        _SecretKey[0] = Data.secret1;
-        _SecretKey[1] = DataBase.secret2;
-        _SecretKey[2] = DisplayInfo.secret3;
-
-        Shamir shamir = new Shamir();
-        _Combinekey  = shamir.combine(_SecretKey);
-
-        //AlgoPerso
-        AlgoPerso algoPerso = new AlgoPerso();
-        _MasterKey = algoPerso.get_MasterKey();
-    }
+    private AlgoPerso algoPerso;
 
     /**
      *
-     * @param algo
      * algorithms supported:
      * AES/CBC/NoPadding (128)
      * AES/CBC/PKCS5Padding (128)
@@ -54,9 +37,22 @@ public class CipherAlgo {
      * DES/ECB/NoPadding (56)
      * DES/ECB/PKCS5Padding (56)
      */
-    public CipherAlgo(String algo){
-        _algo=algo;
-        _keyValue = "ENSICAENMONETIQUE";
+    public CipherAlgo(){
+        _algo = "AES/CBC/PKCS5Padding";
+        _keyValue = "ENSICAENENSICAEN";
+
+        _SecretKey = new BigInteger[3];
+        _SecretKey[0] = Data.secret1;
+        _SecretKey[1] = DataBase.secret2;
+        _SecretKey[2] = DisplayInfo.secret3;
+
+        //Shamir managment key not used
+        //Shamir shamir = new Shamir();
+        //_Combinekey  = shamir.combine(_SecretKey);
+
+        //AlgoPerso
+        algoPerso = new AlgoPerso();
+
     }
 
     public void encrypt() throws ClassNotFoundException{
@@ -80,6 +76,8 @@ public class CipherAlgo {
 
     }
     public byte[] encrypt(String plainText,byte[] IV) throws Exception {
+
+        _MasterKey = algoPerso.get_MasterKey();
 
         StackTraceElement[] _st=Thread.currentThread().getStackTrace();
         MainActivity.encryptTrace+=_st[2].getMethodName()+separator;
@@ -110,6 +108,10 @@ public class CipherAlgo {
 
     }
     public String decrypt(byte[] cipherText,byte[] IV) throws Exception{
+
+        _MasterKey = AlgoPerso.recoverKey();
+
+
         Cipher cipher = Cipher.getInstance(_algo);
         SecretKeySpec key = new SecretKeySpec(_MasterKey.toByteArray(), _secretKeyMode);
         cipher.init(Cipher.DECRYPT_MODE, key,new IvParameterSpec(IV));

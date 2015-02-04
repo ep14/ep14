@@ -1,11 +1,13 @@
 package wl.SecureBase;
 
 import android.telephony.TelephonyManager;
+import build.tools.javazic.Main;
 
 import java.math.BigInteger;
+import java.util.Random;
 
 /**
- * Created by slavnic on 28/01/15.
+ * Created by huang and slavnic on 28/01/15.
  */
 public class PhoneData {
     private String IMEINumber;
@@ -55,14 +57,13 @@ public class PhoneData {
         DataTab[6] = new BigInteger(VoiceMailAlphaTag.getBytes());
 
 
+        Random rd = new Random();
         //Random value to get the data in the RandTab
-        keyRand = new int[MainActivity.LEN];
-        keyRand[0] = 0;
-        keyRand[1] = 5;
-        keyRand[2] = 2;
-        keyRand[3] = 0;
-        keyRand[4] = 1;
-        keyRand[5] = 3;
+        PhoneData.keyRand = new int[MainActivity.LEN];
+        for(int i = 0;i<MainActivity.LEN;i++){
+            //TODO Save this data in Preferences or specific file
+            PhoneData.keyRand[i] = Math.abs(rd.nextInt()%6);
+        }
 
     }
 
@@ -81,7 +82,7 @@ public class PhoneData {
         System.out.println("Subscriber Id: "+SubscriberId);
         System.out.println("Voice Mail Alpha Tag: "+VoiceMailAlphaTag);
         if(_tm.getNetworkType() == _tm.NETWORK_TYPE_UNKNOWN){
-            System.out.println("lol");
+            System.out.println("");
         }
         for(int i = 0;i<MainActivity.LEN;i++){
             System.out.println("Key Rand "+i+":"+keyRand[i]);

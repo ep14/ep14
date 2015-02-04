@@ -5,9 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import wl.SecureModule.CipherAlgo;
-import wl.SecureModule.RandTab;
-
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 
@@ -16,12 +13,12 @@ import java.util.ArrayList;
  */
 public class DataBase {
     //Shamir
-    private static String string2 = "DATABASEDATABASE";
+    private static String string2 = "DATABASEDATABASE";//128bits
     public static BigInteger key2 = new BigInteger(string2.getBytes());
     public static BigInteger secret2;
 
     //AlgoPerso
-    public static RandTab RandTab2 = new RandTab(1);
+    private static BigInteger _RandTab2[] = new BigInteger[MainActivity.LEN];
 
     private static final int VERSION_BDD = 1;
     private static final String NOM_BDD = "SecureBase.db";
@@ -115,9 +112,6 @@ public class DataBase {
     }
 
 
-    /*
-    * TODO request searching the primary key
-    * */
     public Data getDataByKey(String key){
         //Get the value ,in a Cursor, corresponding to a client in the db (here it's thanks to his name)
         Cursor c = _db.query(TABLE, new String[] {COL_ID, COL_KEY, COL_DATA,COL_IV}, COL_KEY + "=\"" + key +"\"", null, null, null, null);
@@ -165,6 +159,16 @@ public class DataBase {
 
     }
 
+    //One tab of random value of 127bits
+    public static BigInteger[] RandTab2(){
+        _RandTab2[0] = new BigInteger("126655527604051455571944651627827996777");
+        _RandTab2[1] = new BigInteger("160965096454640377722201519312729166933");
+        _RandTab2[2] = new BigInteger("134069781948300642917888570105633240253");
+        _RandTab2[3] = new BigInteger("115335880275994352185882962446617222676");
+        _RandTab2[4] = new BigInteger("30618044413294937461748144822856835774");
+        _RandTab2[5] = new BigInteger("95824267309214699137609235931183428908");
 
+        return _RandTab2;
+    }
 
 }

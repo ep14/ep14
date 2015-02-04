@@ -8,9 +8,8 @@ import java.math.BigInteger;
 import java.util.Random;
 
 /**
- * Created by slavnic on 19/11/14.
+ * Created by huang and slavnic on 19/11/14.
  */
-//TODO Seems it's not working everytime (Secret != combine)
 
 // Simplified version of Shamir's secret sharing
 public class Shamir {

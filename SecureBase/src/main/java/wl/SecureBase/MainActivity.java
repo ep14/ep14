@@ -82,8 +82,9 @@ public class MainActivity  extends Activity implements View.OnClickListener {
         _db = new DataBase(this);
         _db.open();
 
-        Shamir shamir = new Shamir();
-        shamir.split();//creation of 3 secret
+        //Shamir managment key not used
+        //Shamir shamir = new Shamir();
+        //shamir.split();//creation of 3 secret
 
         //Get data from phone
         TelephonyManager tm=(TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
@@ -163,20 +164,6 @@ public class MainActivity  extends Activity implements View.OnClickListener {
     }
 
 
-
-
-    //////////////////TEST ZONE////////////////////////
-    private void add() throws Exception{
-        _prng.nextBytes(_IV);
-        String plainText = _key.getText().toString();
-        byte[] encKey = _cipher.encrypt(plainText,_IV);
-        byte[] encData =_cipher.encrypt(_data.getText().toString(),_IV);
-        _key.setText("");
-        _data.setText("");
-        Data data = new Data(_cipher.toBinary(encKey),_cipher.toBinary(encData),_IV);
-        _db.insertData(data);
-
-    }
     private void testEncryption(){
 
         _prng.nextBytes(_IV);
@@ -193,17 +180,21 @@ public class MainActivity  extends Activity implements View.OnClickListener {
 
             byte[] encKey = _cipher.encrypt(_key.getText().toString(),_IV);
             byte[] encData =_cipher.encrypt(_data.getText().toString(),_IV);
-            _key.setText("");
+            _key.setText(_data.getText());
             _data.setText("");
             Data data = new Data(_cipher.toBinary(encKey),_cipher.toBinary(encData),_IV);
             _db.insertData(data);
             Data d = _db.getDataByKey(_cipher.toBinary(encKey));
 
+            //Verify if the stack trace find correspond to a normal use of the apk
+            /*
             if(s.equals(encryptTrace)){
-                _key.setText("ok");
+                //_key.setText("ok");
             }else{
-                _key.setText("fail");
+                //_key.setText("fail");
+
             }
+            */
 
             String decData=_cipher.decrypt(_cipher.fromBinary(d.getData()), d.getIV());
 
@@ -211,21 +202,6 @@ public class MainActivity  extends Activity implements View.OnClickListener {
             e.printStackTrace();
         }
 
-
-    }
-
-    public void testShamir() {
-        Random rnd = new Random();
-        BigInteger SecretEnsi = new BigInteger(testkey.getBytes());// Ascii
-
-        BigInteger Secret = new BigInteger(128, rnd);
-
-
-        Shamir shamir = new Shamir(SecretEnsi);
-        shamir.split(SecretEnsi);
-        BigInteger sommecoeff = shamir.combine(shamir.get_coeff());
-
-        System.out.println("Secret =" + SecretEnsi + " et Shamir = " + sommecoeff);
 
     }
 

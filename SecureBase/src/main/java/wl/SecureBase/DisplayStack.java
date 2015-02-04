@@ -13,20 +13,15 @@ import android.widget.TextView;
 import wl.SecureBase.MainActivity;
 import wl.SecureBase.R;
 
-
+/**
+ * Created by huang and slavnic  on 10/01/15.
+ */
 public class DisplayStack extends Activity{
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.stack);
         TextView stackView = (TextView)findViewById(R.id.stack);
         FileInputStream fis = null;
-
-
-
-
-
     }
 }
